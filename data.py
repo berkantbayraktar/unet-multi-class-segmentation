@@ -36,9 +36,9 @@ def adjust_data(img, mask, num_class):
     return img, mask
 
 
-def train_generator(batch_size, train_path, image_folder, mask_folder, aug_dict, image_color_mode="grayscale",
-                    mask_color_mode="grayscale", image_save_prefix="image", mask_save_prefix ="mask",
-                    num_class=2, save_to_dir=None, target_size=(256,256), seed=1):
+def train_generator(target_size, batch_size, train_path, image_folder, mask_folder, aug_dict, image_color_mode,
+                    mask_color_mode, image_save_prefix, mask_save_prefix,
+                    num_class, save_to_dir=None, seed=1):
     '''
     can generate image and mask at the same time
     use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
@@ -72,16 +72,17 @@ def train_generator(batch_size, train_path, image_folder, mask_folder, aug_dict,
         yield img, mask
 
 
-def test_generator(test_path, num_image=30, target_size=(256, 256), as_gray=True):
-    for i in range(0, num_image, 1):
-        img = io.imread(os.path.join(test_path, format(i,"04") + ".jpg"),as_gray = as_gray)
+def test_generator(test_path, num_image, target_size, as_gray=True):
+    for i in range(1, num_image + 1, 1):
+        img = io.imread(os.path.join(test_path,"old_" + format(i,"04") + ".jpg"),as_gray = as_gray)
         img = img / 255
         img = trans.resize(img,target_size)
         img = np.reshape(img,(1,)+img.shape)
         yield img
 
 
-def geneTrainNpy(image_path, mask_path, flag_multi_class=False,num_class=2, image_prefix="image", mask_prefix="mask", image_as_gray=True, mask_as_gray=True):
+'''
+def geneTrainNpy(image_path, mask_path, num_class=2, image_prefix="image", mask_prefix="mask", image_as_gray=True, mask_as_gray=True):
     image_name_arr = glob.glob(os.path.join(image_path,"%s*.png"%image_prefix))
     image_arr = []
     mask_arr = []
@@ -96,6 +97,7 @@ def geneTrainNpy(image_path, mask_path, flag_multi_class=False,num_class=2, imag
     image_arr = np.array(image_arr)
     mask_arr = np.array(mask_arr)
     return image_arr, mask_arr
+'''
 
 
 def label_visualize(num_class, color_dict, img):
@@ -112,4 +114,4 @@ def save_result(save_path, npyfile, test_gen, num_class=2):
         img = label_visualize(num_class, COLOR_DICT, item)
         blended = cv2.addWeighted(np.float32(orj), 0.5, np.float32(img), 0.5, 0)
 
-        io.imsave(os.path.join(save_path, "%d_predict.png"%i), blended)
+        io.imsave(os.path.join(save_path, "old_" + format(i + 1,"04") + "_predict.png"), blended)

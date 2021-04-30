@@ -10,7 +10,7 @@ from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as keras
 
 
-def unet(input_size, pretrained_weights=None):
+def unet(input_size, num_class, pretrained_weights=None):
     inputs = Input(input_size)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1)
@@ -53,7 +53,7 @@ def unet(input_size, pretrained_weights=None):
     merge9 = concatenate([conv1, up9], axis=3)
     conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge9)
     conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
-    conv10 = Conv2D(4, 1, activation='softmax')(conv9)
+    conv10 = Conv2D(num_class, 1, activation='softmax')(conv9)
 
     model = Model(input=inputs, output=conv10)
 
