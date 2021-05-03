@@ -2,6 +2,7 @@ from model import *
 from data import *
 
 import sys
+import math
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
@@ -15,10 +16,10 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 '''
 
 number_of_class = 4
-test_img_count = 200
-epochs = 5
+test_img_count = 299
+epochs = 15
 batch_size = 16
-network_size = (512, 512)
+network_size = (256, 256)
 
 
 def train():
@@ -32,19 +33,19 @@ def train():
 
     model = unet(input_size=network_size + (3,), num_class=number_of_class,  pretrained_weights=None)
     model_checkpoint = ModelCheckpoint('unet_mastr.hdf5', monitor='loss', verbose=1, save_best_only=True)
-    model.fit_generator(train_gen, steps_per_epoch=50, epochs=epochs, callbacks=[model_checkpoint])
+    model.fit_generator(train_gen, steps_per_epoch=math.floor(1030 / batch_size), epochs=epochs, callbacks=[model_checkpoint])
 
 
 def test():
-    test_gen = test_generator(test_path="data/MaSTr/test", num_image=test_img_count, target_size=network_size, as_gray=False)
+    test_gen = test_generator(test_path="data/MaSTr/test", target_size=network_size, as_gray=False)
 
     model = unet(input_size=network_size + (3,), num_class=number_of_class,  pretrained_weights=None)
     model.load_weights("unet_mastr.hdf5")
 
     results = model.predict_generator(test_gen, test_img_count, verbose=1)
 
-    test_gen = test_generator(test_path="data/MaSTr/test", num_image=test_img_count, target_size=network_size, as_gray=False)
-    save_result("data/MaSTr/test", results, test_gen, num_class=4)
+    test_gen = test_generator(test_path="data/MaSTr/test", target_size=network_size, as_gray=False)
+    save_result("data/MaSTr/test_predicted", "data/MaSTr/test", results, test_gen, num_class=4)
 
 
 def main(argv):

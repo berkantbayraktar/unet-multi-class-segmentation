@@ -72,13 +72,15 @@ def train_generator(target_size, batch_size, train_path, image_folder, mask_fold
         yield img, mask
 
 
-def test_generator(test_path, num_image, target_size, as_gray=True):
-    for i in range(1, num_image + 1, 1):
-        img = io.imread(os.path.join(test_path,"old_" + format(i,"04") + ".jpg"),as_gray = as_gray)
-        img = img / 255
-        img = trans.resize(img,target_size)
-        img = np.reshape(img,(1,)+img.shape)
-        yield img
+def test_generator(test_path, target_size, as_gray=True):
+    for r, _, f in os.walk(test_path):
+        f.sort()
+        for file in f:
+            img = io.imread(os.path.join(test_path, file), as_gray=as_gray)
+            img = img / 255
+            img = trans.resize(img, target_size)
+            img = np.reshape(img,(1,)+img.shape)
+            yield img
 
 
 '''
@@ -108,10 +110,15 @@ def label_visualize(num_class, color_dict, img):
     return img_out / 255
 
 
-def save_result(save_path, npyfile, test_gen, num_class=2):
+def save_result(save_path,test_path, npyfile, test_gen, num_class):
+    img_names = []
+    for r, _, f in os.walk(test_path):
+        f.sort()
+        img_names = f
+
     for i, item in enumerate(npyfile):
         orj = next(test_gen)[0]
         img = label_visualize(num_class, COLOR_DICT, item)
         blended = cv2.addWeighted(np.float32(orj), 0.5, np.float32(img), 0.5, 0)
 
-        io.imsave(os.path.join(save_path, "old_" + format(i + 1,"04") + "_predict.png"), blended)
+        io.imsave(os.path.join(save_path, img_names[i] + "_predict.png"), blended)
