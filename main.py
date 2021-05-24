@@ -19,7 +19,7 @@ number_of_class = 4
 test_img_count = 299
 epochs = 15
 batch_size = 16
-network_size = (256, 256)
+network_size = (512, 512)
 
 
 def train():
@@ -32,7 +32,7 @@ def train():
                                 num_class=number_of_class, save_to_dir=None)
 
     model = unet(input_size=network_size + (3,), num_class=number_of_class,  pretrained_weights=None)
-    model_checkpoint = ModelCheckpoint('unet_mastr.hdf5', monitor='loss', verbose=1, save_best_only=True)
+    model_checkpoint = ModelCheckpoint('unet_mastr-512.hdf5', monitor='loss', verbose=1, save_best_only=True)
     model.fit_generator(train_gen, steps_per_epoch=math.floor(1030 / batch_size), epochs=epochs, callbacks=[model_checkpoint])
 
 
@@ -40,7 +40,7 @@ def test():
     test_gen = test_generator(test_path="data/MaSTr/test", target_size=network_size, as_gray=False)
 
     model = unet(input_size=network_size + (3,), num_class=number_of_class,  pretrained_weights=None)
-    model.load_weights("unet_mastr.hdf5")
+    model.load_weights("unet_mastr-512.hdf5")
 
     results = model.predict_generator(test_gen, test_img_count, verbose=1)
 

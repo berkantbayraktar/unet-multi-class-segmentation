@@ -76,7 +76,8 @@ def test_generator(test_path, target_size, as_gray=True):
     for r, _, f in os.walk(test_path):
         f.sort()
         for file in f:
-            img = io.imread(os.path.join(test_path, file), as_gray=as_gray)
+            img = cv2.imread(os.path.join(test_path, file))
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = img / 255
             img = trans.resize(img, target_size)
             img = np.reshape(img,(1,)+img.shape)
