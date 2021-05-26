@@ -18,28 +18,29 @@ Ignore = [0, 0, 0]
 COLOR_DICT = np.array([Water, Obstacles, Sky, Ignore])
 
 # Read the video from specified path
-cap = cv2.VideoCapture("/home/bbayraktar/cut.mp4")
+cap = cv2.VideoCapture("/home/bbayraktar/hvlprojects/unet-multi-class-segmentation/cut.mp4")
 
 model = unet(input_size=network_size + (3,), num_class=number_of_class,  pretrained_weights=None)
 model.load_weights("unet_mastr-512.hdf5")
 
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter('out.mp4', fourcc, 30.0, (1280, 720))
+out = cv2.VideoWriter('vid2_out.mp4', fourcc, 30.0, (1280, 720))
 
 while True:
     ret, img = cap.read()
     if ret:
-        
-        img = img / 255
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = img / 255.0
         # resize img to network size
         img = cv2.resize(img, network_size)
 
-        predicted = model.predict(img[np.newaxis, ...])
+        predicted = model.predict(np.reshape(img,(1,)+img.shape))
         predicted = predicted[0]
 
         predicted = label_visualize(number_of_class, COLOR_DICT, predicted)
 
         blended = cv2.addWeighted(np.float32(img), 0.5, np.float32(predicted), 0.5, 0)
+        blended = cv2.resize(blended, (1024, 1024))
         cv2.imshow('infer', blended)
         cv2.waitKey(1)
 
